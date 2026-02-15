@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createAuctionService } from "../services/auction.service";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const CreateAuctionPage = () => {
   const [title, setTitle] = useState("");
@@ -15,6 +16,8 @@ const CreateAuctionPage = () => {
 
     if (!title.trim()) {
       setError("Title is required");
+      toast.error("Title is required");
+
       return;
     }
 
@@ -23,7 +26,7 @@ const CreateAuctionPage = () => {
       setError(null);
       setSuccess(null);
 
-      const data = await createAuctionService({
+      await createAuctionService({
         title,
         description,
       });
@@ -38,6 +41,7 @@ const CreateAuctionPage = () => {
       setError(
         err?.response?.data?.message || err.message || "Something went wrong",
       );
+      toast.error(err?.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }

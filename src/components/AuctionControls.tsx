@@ -24,7 +24,6 @@ const AuctionControls = ({
 }: Props) => {
   const isLive = auctionData?.status === "LIVE";
   const notStarted = auctionData?.status === "NOT_STARTED";
-  const isCompleted = auctionData?.status === "COMPLETED";
 
   const navigate = useNavigate();
   return (
@@ -69,12 +68,14 @@ const AuctionControls = ({
           <>
             <button
               onClick={onSell}
+              disabled={auctionData.currentBid === 0}
               className="bg-red-600 hover:bg-red-700 
                      text-white text-sm font-bold 
                      px-10 py-2 rounded-lg 
                      shadow-lg hover:shadow-red-500/40
                      transition-all duration-200
-                     hover:scale-105"
+                     hover:scale-105 disabled:scale-100 disabled:opacity-50
+            disabled:cursor-not-allowed"
             >
               🔨 SELL
             </button>

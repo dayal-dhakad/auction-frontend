@@ -48,3 +48,10 @@ export const undoLastBidApi = async (auctionId: string) => {
 
   return response.data;
 };
+export const randomAssignBidApi = async (auctionId: string) => {
+  const response = await axiosInstance.post(
+    `/auction/${auctionId}/random-assign`,
+  );
+
+  return response.data;
+};

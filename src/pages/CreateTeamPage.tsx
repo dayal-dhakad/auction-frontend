@@ -5,6 +5,7 @@ import { createTeamFormSchema } from "../validations/team.schema";
 import { useNavigate, useParams } from "react-router-dom";
 import { getAuctionByIdService } from "../services/auction.service";
 import type { AuctionData } from "../types/auction";
+import toast from "react-hot-toast";
 
 interface Player {
   _id: string;
@@ -40,6 +41,7 @@ const CreateTeamPage = () => {
         setPlayers(data.players || []);
       } catch {
         setError("Failed to load players");
+        toast.error("Failed to load players");
       }
     };
     if (auctionId) {
@@ -65,6 +67,8 @@ const CreateTeamPage = () => {
 
     if (!result.success) {
       setError(result.error.issues[0].message);
+      toast.error(result.error.issues[0].message);
+
       return;
     }
 
@@ -88,6 +92,7 @@ const CreateTeamPage = () => {
       });
     } catch (err: any) {
       setError(err?.response?.data?.message || "Something went wrong");
+      toast.error(err?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -100,6 +105,7 @@ const CreateTeamPage = () => {
         setAuctionData(data.auction);
       } catch (err: any) {
         setError(err?.response?.data?.message || "Failed to fetch auctions");
+        toast.error(err?.response?.data?.message);
       } finally {
         setLoading(false);
       }

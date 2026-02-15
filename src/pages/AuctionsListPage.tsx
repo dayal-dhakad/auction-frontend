@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllAuctionsApi } from "../api/auction.api";
+import toast from "react-hot-toast";
 
 interface Auction {
   _id: string;
@@ -24,6 +25,7 @@ const AuctionsListPage = () => {
         setAuctions(data.auctions);
       } catch (err: any) {
         setError(err?.response?.data?.message || "Failed to fetch auctions");
+        toast.error(err?.response?.data?.message);
       } finally {
         setLoading(false);
       }

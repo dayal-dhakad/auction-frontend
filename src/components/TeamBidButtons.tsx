@@ -24,7 +24,7 @@ const TeamBidButtons = ({ teams, auction, onBid, disabled }: Props) => {
           className="
               px-2 py-2 rounded-lg 
                      shadow-md text-sm font-semibold
-            bg-blue-600 hover:bg-blue-700
+            bg-blue-600 hover:bg-blue-700 disabled:bg-red-600
             text-white 
             transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50
             disabled:cursor-not-allowed

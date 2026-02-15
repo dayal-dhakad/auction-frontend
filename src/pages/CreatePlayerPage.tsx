@@ -4,6 +4,7 @@ import type { SkillLevel, Gender } from "../types/player";
 import { getAuctionByIdService } from "../services/auction.service";
 import type { AuctionData } from "../types/auction";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const CreatePlayerPage = () => {
   const { auctionId } = useParams();
@@ -24,6 +25,8 @@ const CreatePlayerPage = () => {
     }
     if (!name.trim()) {
       setError("Name is required");
+      toast.error("Name is required");
+
       return;
     }
 
@@ -47,6 +50,7 @@ const CreatePlayerPage = () => {
       setError(
         err?.response?.data?.message || err.message || "Something went wrong",
       );
+      toast.error(err?.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
@@ -59,6 +63,7 @@ const CreatePlayerPage = () => {
         setAuctionData(data.auction);
       } catch (err: any) {
         setError(err?.response?.data?.message || "Failed to fetch auctions");
+        toast.error(err?.response?.data?.message);
       } finally {
         setLoading(false);
       }
