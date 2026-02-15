@@ -1,20 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPlayerService } from "../services/player.service";
 import type { SkillLevel, Gender } from "../types/player";
+import { getAuctionByIdService } from "../services/auction.service";
+import type { AuctionData } from "../types/auction";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CreatePlayerPage = () => {
+  const { auctionId } = useParams();
   const [name, setName] = useState("");
+  const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [skillLevel, setSkillLevel] = useState<SkillLevel>("medium");
   const [gender, setGender] = useState<Gender>("male");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [auctionData, setAuctionData] = useState<AuctionData>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!auctionId) {
+      return;
+    }
     if (!name.trim()) {
       setError("Name is required");
       return;
@@ -30,6 +37,7 @@ const CreatePlayerPage = () => {
         image,
         skillLevel,
         gender,
+        auctionId,
       });
 
       setSuccess("Player created successfully 🎉");
@@ -44,14 +52,46 @@ const CreatePlayerPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchAuctions = async (id: string) => {
+      try {
+        const data = await getAuctionByIdService(id);
+        setAuctionData(data.auction);
+      } catch (err: any) {
+        setError(err?.response?.data?.message || "Failed to fetch auctions");
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (auctionId) {
+      fetchAuctions(auctionId);
+    }
+  }, [auctionId]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center text-white">
-      <div className="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md">
+      <div className="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-3xl">
         <h2 className="text-3xl font-bold mb-6 text-center">
           🏸 Create Player
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-semibold">
+            Auction Name
+          </label>
+          <p className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+            {auctionData?.title}
+          </p>
+        </div>
+        <div className="mb-4">
+          <label className="block mb-2 text-sm font-semibold">
+            Auction Description
+          </label>
+          <p className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+            {auctionData?.description}
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className=" grid grid-cols-2 gap-4">
           {/* Name */}
           <div>
             <label className="block mb-2 text-sm font-semibold">
@@ -107,14 +147,22 @@ const CreatePlayerPage = () => {
           </div>
 
           {/* Submit */}
+
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => navigate(-1)}
+            className="w-full bg-red-600 mt-5 hover:bg-red-700 py-3 rounded-xl font-bold transition-all duration-200 hover:scale-105 disabled:opacity-50"
+          >
+            Back
+          </button>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition-all duration-200 hover:scale-105 disabled:opacity-50"
+            className="w-full bg-green-600 mt-5 hover:bg-green-700 py-3 rounded-xl font-bold transition-all duration-200 hover:scale-105 disabled:opacity-50"
           >
             {loading ? "Creating..." : "Create Player"}
           </button>
-
           {/* Messages */}
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 

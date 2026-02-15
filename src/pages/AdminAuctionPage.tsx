@@ -3,43 +3,126 @@ import CurrentPlayerCard from "../components/CurrentPlayerCard";
 import TeamBidButtons from "../components/TeamBidButtons";
 import AuctionControls from "../components/AuctionControls";
 import TeamsTable from "../components/TeamsTable";
-import type { AuctionState, Team } from "../types/auction";
-import { auctionPlayers, dummyTeams } from "../utils/constants";
-import { getAuctionByIdService } from "../services/auction.api";
-import { useParams } from "react-router-dom";
+import type { AuctionData, Team } from "../types/auction";
+import {
+  bidOnPlayerService,
+  endAuctionService,
+  getAuctionByIdService,
+  startAuctionService,
+} from "../services/auction.service";
+import { useNavigate, useParams } from "react-router-dom";
+import { getAllTeamService } from "../services/team.service";
+import AuctionPlayersTable from "../components/PlayersTable";
+import toast from "react-hot-toast";
+import { sellPlayerApi, undoLastBidApi } from "../api/auction.api";
 
 const AdminAuctionPage = () => {
   const { id } = useParams();
-  //   const [teams, setTeams] = useState<Team[]>([]);
-  const teams = dummyTeams;
-  const dummyAuction: AuctionState = {
-    currentPlayer: auctionPlayers[0],
-    currentBid: auctionPlayers[0].basePrice,
-    currentHighestTeam: "team2",
-    status: "LIVE",
+  const navigate = useNavigate();
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [auctionData, setAuctionData] = useState<AuctionData>();
+  const [error, setError] = useState<string | null>(null);
+  const [isBidding, setIsBidding] = useState<boolean>(false);
+  const [refetch, setRefetch] = useState<boolean>(false);
+
+  const fetchAuction = async (id: string) => {
+    try {
+      const data = await getAuctionByIdService(id);
+      setAuctionData(data.auction);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to fetch auctions");
+    } finally {
+      // setLoading(false);
+    }
   };
-
-  const [auction, setAuction] = useState<AuctionState | null>(dummyAuction);
-
   useEffect(() => {
-    const fetchAuctions = async (id: string) => {
-      try {
-        const data = await getAuctionByIdService(id);
-        // setAuctions(data.auctions);
-      } catch (err: any) {
-        // setError(err?.response?.data?.message || "Failed to fetch auctions");
-      } finally {
-        // setLoading(false);
-      }
-    };
     if (id) {
-      fetchAuctions(id);
+      fetchAuction(id);
     }
   }, [id]);
 
+  const handleStartAuction = async () => {
+    if (!id) {
+      return;
+    }
+    try {
+      const data = await startAuctionService(id);
+      if (data) {
+        fetchAuction(id);
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to Start auction");
+    }
+  };
+  const handleEndAuction = async () => {
+    if (!id) {
+      return;
+    }
+    try {
+      const data = await endAuctionService(id);
+      if (data) {
+        toast.success("Auction Ended");
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to Start auction");
+    }
+  };
+
+  const fetchAllTeams = async (id: string) => {
+    try {
+      const data = await getAllTeamService(id);
+      setTeams(data.teams);
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to fetch teams");
+    } finally {
+      // setLoading(false);
+    }
+  };
   useEffect(() => {
-    setAuction(dummyAuction);
-  }, []);
+    if (id) {
+      fetchAllTeams(id);
+    }
+  }, [id]);
+
+  const handleBidOnPlayer = async (id: string, teamId: string) => {
+    setIsBidding(true);
+    try {
+      const data = await bidOnPlayerService(id, teamId);
+      if (data) {
+        fetchAuction(id);
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Failed to fetch teams");
+    } finally {
+      setIsBidding(false);
+    }
+  };
+
+  const handleSell = async () => {
+    try {
+      if (!id) return;
+
+      const data = await sellPlayerApi(id);
+      fetchAuction(id);
+      fetchAllTeams(id);
+      setRefetch((prev) => !prev);
+    } catch (error: any) {
+      alert(error?.response?.data?.message || "Sell failed");
+    }
+  };
+  const handleUndoLastBid = async () => {
+    try {
+      if (!id) return;
+
+      const data = await undoLastBidApi(id);
+      fetchAuction(id);
+    } catch (error: any) {
+      alert(error?.response?.data?.message || "Undo failed");
+    }
+  };
 
   return (
     <div
@@ -48,6 +131,8 @@ const AdminAuctionPage = () => {
                   text-white"
     >
       {/* Page Title */}
+      {error && <p className="text-center text-red-400">{error}</p>}
+
       <div className="text-center">
         <h1 className="text-3xl md:text-4xl font-bold tracking-wide">
           🏸 Auction Control Panel
@@ -58,41 +143,65 @@ const AdminAuctionPage = () => {
       </div>
 
       {/* Current Player Section */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-gray-800 rounded-xl shadow-lg p-6">
-          <CurrentPlayerCard auction={auction} />
-        </div>
+      {auctionData && auctionData.status === "LIVE" && (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-gray-800 rounded-xl shadow-lg p-6">
+            <CurrentPlayerCard auction={auctionData} />
+          </div>
 
-        {/* Team Bid Buttons */}
-        <div className="bg-gray-800 rounded-xl shadow-lg p-6 col-span-2">
-          <h2 className="text-xl font-semibold mb-4 text-center">Place Bid</h2>
-          <TeamBidButtons
+          {/* Team Bid Buttons */}
+          <div className="bg-gray-800 rounded-xl shadow-lg p-6 col-span-2">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Place Bid
+            </h2>
+            <TeamBidButtons
+              teams={teams}
+              auction={auctionData}
+              disabled={isBidding}
+              onBid={(teamId) => {
+                if (id) {
+                  handleBidOnPlayer(id, teamId);
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+      {/* Auction Controls */}
+      {auctionData && auctionData.status !== "COMPLETED" && (
+        <div className="bg-gray-800 rounded-xl shadow-lg p-6">
+          <AuctionControls
             teams={teams}
-            auction={auction}
-            onBid={(teamId) => {
-              // call bid API
+            onStart={() => {
+              handleStartAuction();
             }}
+            // onNext={() => {}}
+            onSell={() => {
+              handleSell();
+            }}
+            onUndo={() => {
+              handleUndoLastBid();
+            }}
+            onRandomAssign={() => {}}
+            // onEnd={() => {
+            //   handleEndAuction();
+            // }}
+            auctionData={auctionData}
           />
         </div>
-      </div>
-      {/* Auction Controls */}
-      <div className="bg-gray-800 rounded-xl shadow-lg p-6">
-        <AuctionControls
-          onStart={() => {}}
-          onNext={() => {}}
-          onSell={() => {}}
-          onUndo={() => {}}
-          onRandomAssign={() => {}}
-          onEnd={() => {}}
-        />
-      </div>
-
-      {/* Teams Summary Table */}
+      )}
       <div className="bg-gray-800 rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4 text-center">
           Teams Summary
         </h2>
-        <TeamsTable teams={teams} auction={auction} />
+        <TeamsTable teams={teams} auction={auctionData} />
+      </div>
+
+      <div className="bg-gray-800 rounded-xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-4 text-center">
+          Players Summary
+        </h2>
+        <AuctionPlayersTable refetch={refetch} />
       </div>
     </div>
   );

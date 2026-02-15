@@ -1,11 +1,15 @@
-import type { Team, AuctionState } from "../types/auction";
+import type { Team, AuctionData } from "../types/auction";
 
 interface Props {
   teams: Team[];
-  auction: AuctionState | null;
+  auction?: AuctionData | null;
 }
 
 const TeamsTable = ({ teams, auction }: Props) => {
+  if (!teams?.length) {
+    return <div className="text-center text-sm">Teams Not Available</div>;
+  }
+
   return (
     <div className="mt-8 overflow-x-auto">
       <table className="w-full border-collapse text-center">
@@ -20,7 +24,10 @@ const TeamsTable = ({ teams, auction }: Props) => {
 
         <tbody>
           {teams.map((team, index) => {
-            const hasGirl = team.players.some(
+            // ✅ Include captain in player list
+            const allPlayers = [...(team.players || [])];
+
+            const hasGirl = allPlayers.some(
               (player) => player.gender === "female",
             );
 
@@ -38,8 +45,10 @@ const TeamsTable = ({ teams, auction }: Props) => {
                   index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
                 } hover:bg-gray-600 transition`}
               >
+                {/* Team Name */}
                 <td className="py-3 px-4 font-semibold">{team.teamName}</td>
 
+                {/* Purse */}
                 <td
                   className={`py-3 px-4 font-bold ${
                     purseToDisplay < 200 ? "text-red-400" : "text-green-400"
@@ -48,8 +57,10 @@ const TeamsTable = ({ teams, auction }: Props) => {
                   {purseToDisplay}
                 </td>
 
-                <td className="py-3 px-4">{team.players.length}</td>
+                {/* Total Players including captain */}
+                <td className="py-3 px-4">{allPlayers.length}</td>
 
+                {/* Has Girl */}
                 <td className="py-3 px-4 text-xl">{hasGirl ? "✅" : "❌"}</td>
               </tr>
             );

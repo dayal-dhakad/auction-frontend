@@ -1,12 +1,13 @@
-import type { AuctionState, Team } from "../types/auction";
+import type { AuctionData, Team } from "../types/auction";
 
 interface Props {
   teams: Team[];
-  auction: AuctionState | null;
+  auction: AuctionData | null;
   onBid: (teamId: string) => void;
+  disabled: boolean;
 }
 
-const TeamBidButtons = ({ teams, auction, onBid }: Props) => {
+const TeamBidButtons = ({ teams, auction, onBid, disabled }: Props) => {
   const isAuctionLive = auction?.status === "LIVE";
 
   return (
@@ -15,14 +16,19 @@ const TeamBidButtons = ({ teams, auction, onBid }: Props) => {
         <button
           key={team._id}
           onClick={() => onBid(team._id)}
-          disabled={!isAuctionLive}
-          className={`
-            py-4 px-6 rounded-xl text-lg font-semibold
+          disabled={
+            !isAuctionLive ||
+            disabled ||
+            team._id === auction.currentHighestTeam
+          }
+          className="
+              px-2 py-2 rounded-lg 
+                     shadow-md text-sm font-semibold
             bg-blue-600 hover:bg-blue-700
-            text-white shadow-md
-            transition-all duration-200 hover:scale-105
-            ${!isAuctionLive ? "opacity-50 cursor-not-allowed" : ""}
-          `}
+            text-white 
+            transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50
+            disabled:cursor-not-allowed
+          "
         >
           {team.teamName}
         </button>

@@ -6,4 +6,5 @@ export interface CreatePlayerPayload {
   image?: string;
   skillLevel: SkillLevel;
   gender: Gender;
+  auctionId: string;
 }
