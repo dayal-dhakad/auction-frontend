@@ -10,6 +10,8 @@ import CreatePlayerPage from "./pages/CreatePlayerPage";
 import CreateTeamPage from "./pages/CreateTeamPage";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
+import UserAuctionListPage from "./pages/UserAuctionListPage";
+import ViewAuctionPage from "./pages/ViewAuctionPage";
 
 function App() {
   return (
@@ -24,15 +26,17 @@ function App() {
         className="relative"
       >
         <Link
-          className="fixed top-6 left-6 z-50"
+          className="hidden md:block fixed top-6 left-6 z-50"
           to="/"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <img className="w-14" src="/logo.png" alt="" />
         </Link>
         <Routes>
-          <Route path="/" element={<AuctionsListPage />} />
-          <Route path="/auction/:id" element={<AdminAuctionPage />} />
+          <Route path="/" element={<UserAuctionListPage />} />
+          <Route path="/auction/:id" element={<ViewAuctionPage />} />
+          <Route path="/auctions" element={<AuctionsListPage />} />
+          <Route path="/manage-auction/:id" element={<AdminAuctionPage />} />
           <Route path="/create-auction" element={<CreateAuctionPage />} />
           <Route
             path="/create-player/:auctionId"

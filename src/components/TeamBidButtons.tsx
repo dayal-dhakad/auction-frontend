@@ -19,7 +19,7 @@ const TeamBidButtons = ({ teams, auction, onBid, disabled }: Props) => {
           disabled={
             !isAuctionLive ||
             disabled ||
-            team._id === auction.currentHighestTeam
+            team._id === auction.currentHighestTeam?._id
           }
           className="
               px-2 py-2 rounded-lg 

@@ -23,13 +23,21 @@ export interface Bid {
   amount: string;
 }
 
+export interface CurrentHighestTeam {
+  _id: string;
+  teamName: string;
+  amount: string;
+  remainingPurse: number;
+  purse: number;
+  logo: string;
+}
 export interface AuctionData {
   _id: string;
   title: string;
   description: string;
   status: "LIVE" | "NOT_STARTED" | "COMPLETED";
   currentPlayer: Player | null;
-  currentHighestTeam: string | null;
+  currentHighestTeam: CurrentHighestTeam | null;
   currentBid: number;
   order: Player[];
   currentIndex: number;

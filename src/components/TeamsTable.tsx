@@ -31,7 +31,7 @@ const TeamsTable = ({ teams, auction }: Props) => {
               (player) => player.gender === "female",
             );
 
-            const isBidding = auction?.currentHighestTeam === team._id;
+            const isBidding = auction?.currentHighestTeam?._id === team._id;
 
             const purseToDisplay =
               isBidding && auction

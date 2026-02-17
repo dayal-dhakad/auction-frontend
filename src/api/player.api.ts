@@ -13,3 +13,7 @@ export const getAllPlayersApi = async (auctionId: string) => {
   const response = await axiosInstance.get(`/player/all/${auctionId}`);
   return response.data;
 };
+export const getPlayerById = async (playerId: string) => {
+  const response = await axiosInstance.get(`/player/${playerId}`);
+  return response.data;
+};

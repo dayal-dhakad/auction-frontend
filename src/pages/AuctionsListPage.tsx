@@ -57,7 +57,7 @@ const AuctionsListPage = () => {
           auctions.map((auction) => (
             <div
               key={auction._id}
-              onClick={() => navigate(`/auction/${auction._id}`)}
+              onClick={() => navigate(`/manage-auction/${auction._id}`)}
               className="bg-gray-800 p-6 rounded-xl shadow-lg cursor-pointer hover:scale-105 transition-all duration-200"
             >
               <h2 className="text-xl font-bold mb-2">{auction.title}</h2>

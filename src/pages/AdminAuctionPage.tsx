@@ -95,6 +95,7 @@ const AdminAuctionPage = () => {
 
   const handleBidOnPlayer = async (id: string, teamId: string) => {
     setIsBidding(true);
+    setError(null);
     try {
       const data = await bidOnPlayerService(id, teamId);
       if (data) {
