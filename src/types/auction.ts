@@ -6,6 +6,9 @@ export interface Player {
   soldPrice?: number;
   gender: string;
   skillLevel: string;
+  isSold?: boolean;
+  isCaptain?: boolean;
+  team: Team;
 }
 
 export interface Team {

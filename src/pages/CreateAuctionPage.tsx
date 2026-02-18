@@ -35,7 +35,7 @@ const CreateAuctionPage = () => {
       setTitle("");
       setDescription("");
       setTimeout(() => {
-        navigate("/");
+        navigate("/auctions");
       }, 1500);
     } catch (err: any) {
       setError(

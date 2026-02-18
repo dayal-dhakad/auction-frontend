@@ -7,12 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getPlayerById } from "../api/player.api";
 import SoldPlayerPopup from "../components/SoldPlayerPopup";
 import UserTeamsTable from "../components/UserTeamsTable";
+import UserPlayerTable from "../components/UserPlayerTable";
 
 const ViewAuctionPage = () => {
   const { id } = useParams();
   const [auctionData, setAuctionData] = useState<AuctionData>();
   const [lastPlayerId, setLastPlayerId] = useState<string | null>(null);
-
+  const [refetch, setRefetch] = useState(false);
   const [soldPlayer, setSoldPlayer] = useState<any>(null);
 
   const [showSoldPopup, setShowSoldPopup] = useState(false);
@@ -38,6 +39,9 @@ const ViewAuctionPage = () => {
   const fetchAuction = async (id: string) => {
     try {
       const data = await getAuctionByIdService(id);
+      if (data.auction.status === "COMPLETED") {
+        setRefetch((prev) => !prev);
+      }
       setAuctionData(data.auction);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to fetch auction");
@@ -71,6 +75,7 @@ const ViewAuctionPage = () => {
     if (lastPlayerId !== currentId) {
       fetchPlayer(lastPlayerId);
       setLastPlayerId(currentId);
+      setRefetch((prev) => !prev);
     }
   }, [auctionData?.currentPlayer?._id]);
 
@@ -384,7 +389,8 @@ const ViewAuctionPage = () => {
             </motion.div>
           )}
 
-          <UserTeamsTable auction={auctionData} />
+          <UserTeamsTable auction={auctionData} refetch={refetch} />
+          <UserPlayerTable auction={auctionData} refetch={refetch} />
         </div>
       </motion.div>
 

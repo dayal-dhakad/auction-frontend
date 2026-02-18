@@ -44,15 +44,12 @@ const UserTeamsTable = ({ refetch, auction }: Props) => {
             <th className="py-4 px-4">Purse Left</th>
             <th className="py-4 px-4">Players</th>
             <th className="py-4 px-4">Captain</th>
-            <th className="py-4 px-4">Female</th>
           </tr>
         </thead>
 
         <tbody>
           {teams.map((team, index) => {
             const players = team.players || [];
-
-            const hasFemale = players.some((p) => p.gender === "female");
 
             const isActive = auction?.currentHighestTeam?._id === team._id;
 
@@ -127,17 +124,11 @@ const UserTeamsTable = ({ refetch, auction }: Props) => {
                 {/* CAPTAIN */}
                 <td className="py-4 px-4">
                   <div className="flex items-center justify-center gap-2">
-                    <img
-                      src={team.captain?.image}
-                      className="w-8 h-8 rounded-full"
-                    />
-
                     <span className="text-gray-200">{team.captain?.name}</span>
                   </div>
                 </td>
 
                 {/* FEMALE */}
-                <td className="py-4 px-4 text-xl">{hasFemale ? "👩" : "—"}</td>
               </motion.tr>
             );
           })}
