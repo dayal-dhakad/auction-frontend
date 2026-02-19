@@ -42,7 +42,7 @@ const UserPlayerTable = ({ refetch, auction }: Props) => {
 
   return (
     <div className="mt-8 overflow-x-auto">
-      <table className="w-full border-collapse text-center">
+      <table className="w-full border-collapse text-center min-w-[800px]">
         {/* HEADER */}
         <thead>
           <tr className="bg-gray-900/80 text-gray-300 uppercase text-sm tracking-wider">
